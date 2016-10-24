@@ -6,6 +6,9 @@ String apiKey = "XXXXXXXXXXXXXXXX";   // replace with your channel’s thingspea
 const char* ssid = "xxxxxxx";  // your SSID
 const char* password = "xxxxxxxxxx"; your password
 
+//Times to blink after connected. Indication with internal led when connection completed
+int blinks = 20;
+
 const char* server = "api.thingspeak.com";
 #define DHTPIN D7// what pin we’re connected to
 
@@ -19,20 +22,30 @@ dht.begin();
 
 WiFi.begin(ssid, password);
 
+pinMode(LED_BUILTIN, OUTPUT); //specify internal led according to board
+digitalWrite(LED_BUILTIN, HIGH);
+
 Serial.println();
 Serial.println();
 Serial.print("Connecting to ");
 Serial.println(ssid);
 
 WiFi.begin(ssid, password);
-
 while (WiFi.status() != WL_CONNECTED) {
-delay(500);
+digitalWrite(LED_BUILTIN, LOW); // builtin led is blinking slowly till connection
+delay(250);
+digitalWrite(LED_BUILTIN, HIGH);
+delay(250);
 Serial.print(".");
 }
+
 Serial.println("");
 Serial.println("WiFi connected");
-
+for (int i = 0; i<=blinks; i++) {
+digitalWrite(LED_BUILTIN, LOW); // builtin led blinks quickly after connection completed
+delay(40);
+digitalWrite(LED_BUILTIN, HIGH);
+delay(40);
 }
 
 void loop() {
@@ -44,7 +57,7 @@ Serial.println("Failed to read from DHT sensor!");
 return;
 }
 
-if (client.connect(server,80)) { // "184.106.153.149" or api.thingspeak.com
+if (client.connect(184.106.153.149,80)) { // "184.106.153.149" or api.thingspeak.com
 String postStr = apiKey;
 postStr +="&field1=";
 postStr += String(t);
